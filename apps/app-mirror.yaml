@@ -7,9 +7,9 @@ spec:
   project: wlanboy
 
   source:
-    repoURL: https://github.com/wlanboy/mirrorapi.git
+    repoURL: https://github.com/wlanboy/MirrorService.git
     targetRevision: main
-    path: mirrorapi-chart
+    path: mirror-chart
     helm:
       releaseName: mirror
       valueFiles:
