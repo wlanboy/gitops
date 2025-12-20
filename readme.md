@@ -11,6 +11,9 @@ kubectl apply -f projects/wlanboy-project.yaml
 
 kubectl apply -f namespaces/namespace-wlanboy.yaml
 kubectl apply -f apps/app-wlanboy.yaml
+
+kubectl apply -f namespaces/namespace-tester.yaml
+kubectl apply -f apps/app-tester.yaml
 ```
 
 # argocli
@@ -22,4 +25,7 @@ argocd login argocd.gmk.lan --grpc-web \
 
 argocd app get wlanboy
 argocd app sync wlanboy
+
+argocd app get tester
+argocd app sync tester
 ```
