@@ -20,6 +20,9 @@ kubectl apply -f apps/app-eureka.yaml
 
 kubectl apply -f namespaces/namespace-mirror.yaml
 kubectl apply -f apps/app-mirror.yaml
+
+kubectl apply -f namespaces/namespace-javahttpclient.yaml
+kubectl apply -f apps/app-javahttpclient.yaml
 ```
 
 # argocli
@@ -40,4 +43,7 @@ argocd app sync eureka
 
 argocd app get mirror
 argocd app sync mirrir
+
+argocd app get javahttpclient
+argocd app sync javahttpclient
 ```

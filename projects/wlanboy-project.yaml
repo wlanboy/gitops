@@ -12,6 +12,7 @@ spec:
     - https://github.com/wlanboy/httptester.git
     - https://github.com/wlanboy/eurekaclientjava.git
     - https://github.com/wlanboy/MirrorService.git
+    - https://github.com/wlanboy/JavaHttpClient.git
 
   # Welche Cluster dürfen verwendet werden?
   destinations:
@@ -23,6 +24,8 @@ spec:
       namespace: eureka
     - name: gmk
       namespace: mirror
+    - name: gmk
+      namespace: javahttpclient
     - name: gmk
       namespace: istio-ingress
 
