@@ -14,6 +14,8 @@ spec:
   destinations:
     - name: gmk
       namespace: wlanboy
+    - name: gmk
+      namespace: istio-ingress
 
   # Optional: Welche Cluster-Namespaces dürfen NICHT verwendet werden?
   # clusterResourceWhitelist:

@@ -13,3 +13,13 @@ kubectl apply -f namespaces/namespace-wlanboy.yaml
 kubectl apply -f apps/app-wlanboy.yaml
 ```
 
+# argocli
+```bash
+read -s ARGO_PW
+argocd login argocd.gmk.lan --grpc-web \
+  --username admin \
+  --password "$ARGO_PW"
+
+argocd app get wlanboy
+argocd app sync wlanboy
+```
