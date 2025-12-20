@@ -10,6 +10,7 @@ spec:
   sourceRepos:
     - https://github.com/wlanboy/wlanboy.github.io.git
     - https://github.com/wlanboy/httptester.git
+    - https://github.com/wlanboy/eurekaclientjava.git
 
   # Welche Cluster dürfen verwendet werden?
   destinations:
@@ -17,6 +18,8 @@ spec:
       namespace: wlanboy
     - name: gmk
       namespace: tester
+    - name: gmk
+      namespace: eureka
     - name: gmk
       namespace: istio-ingress
 

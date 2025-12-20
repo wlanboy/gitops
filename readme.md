@@ -14,6 +14,9 @@ kubectl apply -f apps/app-wlanboy.yaml
 
 kubectl apply -f namespaces/namespace-tester.yaml
 kubectl apply -f apps/app-tester.yaml
+
+kubectl apply -f namespaces/namespace-eureka.yaml
+kubectl apply -f apps/app-eureka.yaml
 ```
 
 # argocli
@@ -28,4 +31,7 @@ argocd app sync wlanboy
 
 argocd app get tester
 argocd app sync tester
+
+argocd app get eureka
+argocd app sync eureka
 ```
