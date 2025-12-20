@@ -17,6 +17,9 @@ kubectl apply -f apps/app-tester.yaml
 
 kubectl apply -f namespaces/namespace-eureka.yaml
 kubectl apply -f apps/app-eureka.yaml
+
+kubectl apply -f namespaces/namespace-mirror.yaml
+kubectl apply -f apps/app-mirror.yaml
 ```
 
 # argocli
@@ -34,4 +37,7 @@ argocd app sync tester
 
 argocd app get eureka
 argocd app sync eureka
+
+argocd app get mirror
+argocd app sync mirrir
 ```

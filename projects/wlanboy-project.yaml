@@ -11,6 +11,7 @@ spec:
     - https://github.com/wlanboy/wlanboy.github.io.git
     - https://github.com/wlanboy/httptester.git
     - https://github.com/wlanboy/eurekaclientjava.git
+    - https://github.com/wlanboy/mirrorapi.git
 
   # Welche Cluster dürfen verwendet werden?
   destinations:
@@ -20,6 +21,8 @@ spec:
       namespace: tester
     - name: gmk
       namespace: eureka
+    - name: gmk
+      namespace: mirror
     - name: gmk
       namespace: istio-ingress
 
