@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: wlanboy
+  namespace: argocd
+spec:
+  description: Project for the wlanboy application
+
+  # Welche Git-Repos dürfen verwendet werden?
+  sourceRepos:
+    - https://github.com/wlanboy/wlanboy.github.io.git
+
+  # Welche Cluster dürfen verwendet werden?
+  destinations:
+    - name: gmk
+      namespace: wlanboy
+
+  # Optional: Welche Cluster-Namespaces dürfen NICHT verwendet werden?
+  # clusterResourceWhitelist:
+  #   - group: '*'
+  #     kind: '*'
+
+  # Welche Namespaces dürfen genutzt werden?
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+
+  # Automatische Sync-Policies erlauben
+  syncWindows: []

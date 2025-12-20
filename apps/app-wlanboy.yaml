@@ -4,7 +4,7 @@ metadata:
   name: wlanboy
   namespace: argocd
 spec:
-  project: default
+  project: wlanboy
 
   source:
     repoURL: https://github.com/wlanboy/wlanboy.github.io.git
@@ -12,6 +12,8 @@ spec:
     path: website-chart
     helm:
       releaseName: wlanboy
+      valueFiles:
+        - values.yaml
 
   destination:
     name: gmk
