@@ -29,7 +29,9 @@ spec:
     - name: gmk
       namespace: istio-ingress
 
-  clusterResourceWhitelist: 
+  clusterResourceWhitelist:
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
     - group: rbac.authorization.k8s.io
       kind: ClusterRoleBinding
 
