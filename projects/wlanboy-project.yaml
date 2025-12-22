@@ -29,15 +29,9 @@ spec:
     - name: gmk
       namespace: istio-ingress
 
-  # Optional: Welche Cluster-Namespaces dürfen NICHT verwendet werden?
-  # clusterResourceWhitelist:
-  #   - group: '*'
-  #     kind: '*'
-
-  # Welche Namespaces dürfen genutzt werden?
-  namespaceResourceWhitelist:
-    - group: '*'
-      kind: '*'
+  clusterResourceWhitelist: 
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
 
   # Automatische Sync-Policies erlauben
   syncWindows: []
