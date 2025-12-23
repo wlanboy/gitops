@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: webshell
+  namespace: argocd
+spec:
+  project: wlanboy
+
+  source:
+    repoURL: https://github.com/wlanboy/Webshell.git
+    targetRevision: main
+    path: webshell-chart
+    helm:
+      releaseName: webshell
+      valueFiles:
+        - values.yaml
+
+  destination:
+    name: gmk
+    namespace: webshell
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

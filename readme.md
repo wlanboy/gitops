@@ -23,6 +23,9 @@ kubectl apply -f apps/app-mirror.yaml
 
 kubectl apply -f namespaces/namespace-javahttpclient.yaml
 kubectl apply -f apps/app-javahttpclient.yaml
+
+kubectl apply -f namespaces/namespace-webshell.yaml
+kubectl apply -f apps/app-webshell.yaml
 ```
 
 # argocli
@@ -46,4 +49,7 @@ argocd app sync mirrir
 
 argocd app get javahttpclient
 argocd app sync javahttpclient
+
+argocd app get webshell
+argocd app sync webshell
 ```
