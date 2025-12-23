@@ -14,6 +14,7 @@ spec:
     - https://github.com/wlanboy/MirrorService.git
     - https://github.com/wlanboy/JavaHttpClient.git
     - https://github.com/wlanboy/Webshell.git
+    - https://github.com/wlanboy/SimpleService.git
 
   # Welche Cluster dürfen verwendet werden?
   destinations:
@@ -29,6 +30,8 @@ spec:
       namespace: javahttpclient
     - name: gmk
       namespace: webshell
+    - name: gmk
+      namespace: simpleservice
     - name: gmk
       namespace: istio-ingress
 

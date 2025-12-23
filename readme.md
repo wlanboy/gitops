@@ -26,6 +26,9 @@ kubectl apply -f apps/app-javahttpclient.yaml
 
 kubectl apply -f namespaces/namespace-webshell.yaml
 kubectl apply -f apps/app-webshell.yaml
+
+kubectl apply -f namespaces/namespace-simpleservice.yaml
+kubectl apply -f apps/app-simpleservice.yaml
 ```
 
 # argocli
@@ -52,4 +55,7 @@ argocd app sync javahttpclient
 
 argocd app get webshell
 argocd app sync webshell
+
+argocd app get simpleservice
+argocd app sync simpleservice
 ```
