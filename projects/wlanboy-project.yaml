@@ -14,7 +14,7 @@ spec:
     - https://github.com/wlanboy/MirrorService.git
     - https://github.com/wlanboy/JavaHttpClient.git
     - https://github.com/wlanboy/Webshell.git
-    - https://github.com/wlanboy/webspyhell.git
+    - https://github.com/wlanboy/webpyshell.git
     - https://github.com/wlanboy/SimpleService.git
 
   # Welche Cluster dürfen verwendet werden?
