@@ -4,7 +4,7 @@ metadata:
   name: wlanboy
   namespace: argocd
 spec:
-  project: kubeevent
+  project: wlanboy
 
   source:
     repoURL: https://github.com/wlanboy/kubeevent.git
