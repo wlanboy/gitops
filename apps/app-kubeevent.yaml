@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: wlanboy
+  namespace: kubeevent
+spec:
+  project: kubeevent
+
+  source:
+    repoURL: https://github.com/wlanboy/kubeevent.git
+    targetRevision: main
+    path: kubeevent-chart
+    helm:
+      releaseName: kubeevent
+      valueFiles:
+        - values.yaml
+
+  destination:
+    name: gmk
+    namespace: kubeevent
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

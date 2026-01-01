@@ -68,6 +68,9 @@ kubectl apply -f apps/app-webshell.yaml
 kubectl apply -f namespaces/namespace-webpyshell.yaml
 kubectl apply -f apps/app-webpyshell.yaml
 
+kubectl apply -f namespaces/namespace-kubeevent.yaml
+kubectl apply -f apps/app-kubeevent.yaml
+
 kubectl apply -f namespaces/namespace-simpleservice.yaml
 kubectl apply -f apps/app-simpleservice.yaml
 ```

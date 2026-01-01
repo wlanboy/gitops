@@ -15,6 +15,7 @@ spec:
     - https://github.com/wlanboy/JavaHttpClient.git
     - https://github.com/wlanboy/Webshell.git
     - https://github.com/wlanboy/webpyshell.git
+    - https://github.com/wlanboy/kubevent.git
     - https://github.com/wlanboy/SimpleService.git
 
   # Welche Cluster dürfen verwendet werden?
@@ -33,6 +34,8 @@ spec:
       namespace: webshell
     - name: gmk
       namespace: webpyshell
+    - name: gmk
+      namespace: kubeevent
     - name: gmk
       namespace: simpleservice
     - name: gmk
