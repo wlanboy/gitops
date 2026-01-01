@@ -14,6 +14,7 @@ spec:
     - https://github.com/wlanboy/MirrorService.git
     - https://github.com/wlanboy/JavaHttpClient.git
     - https://github.com/wlanboy/Webshell.git
+    - https://github.com/wlanboy/webspyhell.git
     - https://github.com/wlanboy/SimpleService.git
 
   # Welche Cluster dürfen verwendet werden?
@@ -30,6 +31,8 @@ spec:
       namespace: javahttpclient
     - name: gmk
       namespace: webshell
+    - name: gmk
+      namespace: webpyshell
     - name: gmk
       namespace: simpleservice
     - name: gmk
