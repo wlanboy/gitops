@@ -7,9 +7,9 @@ spec:
   project: wlanboy
 
   source:
-    repoURL: https://github.com/wlanboy/Webshell.git
+    repoURL: https://github.com/wlanboy/webpyshell.git
     targetRevision: main
-    path: webshell-chart
+    path: webpyshell-chart
     helm:
       releaseName: webshell
       valueFiles:
