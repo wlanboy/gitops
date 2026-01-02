@@ -11,7 +11,7 @@ STORAGE:.status.capacity.ephemeral-storage \
 
 ```
 
-#ä get all nodes by namespaces and ressouce allocation
+## get all nodes by namespaces and ressouce allocation
 ```bash
 #!/usr/bin/env bash
 
@@ -37,6 +37,30 @@ kubectl get pods -A -o json \
   | while read -r node ns cpu_req cpu_lim mem_req mem_lim; do
       printf "%-10s %-15s %-15s %-15s %-15s %-15s\n" \
         "$node" "$ns" "$cpu_req" "$cpu_lim" "$mem_req" "$mem_lim"
+    done \
+  | sort
+
+```
+
+## get all pods per node
+```bash
+#!/usr/bin/env bash
+
+# Tabellenkopf
+printf "%-15s %-20s %-40s\n" "NODE" "NAMESPACE" "POD"
+
+kubectl get pods -A -o json \
+  | jq -r '
+      .items[]
+      | {
+          node: .spec.nodeName,
+          ns: .metadata.namespace,
+          pod: .metadata.name
+        }
+      | "\(.node) \(.ns) \(.pod)"
+    ' \
+  | while read -r node ns pod; do
+      printf "%-15s %-20s %-40s\n" "$node" "$ns" "$pod"
     done \
   | sort
 
