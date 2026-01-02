@@ -1,4 +1,6 @@
 # Kubernetes cheat sheet for node oversight
+Kubectl custom-colums and json table formats for node info, ressouce allocation and pod per node lists.
+
 
 ## get all node ressources
 ```bash
