@@ -17,6 +17,7 @@ spec:
     - https://github.com/wlanboy/webpyshell.git
     - https://github.com/wlanboy/kubeevent.git
     - https://github.com/wlanboy/SimpleService.git
+    - https://github.com/wlanboy/randomfail.git
 
   # Welche Cluster dürfen verwendet werden?
   destinations:
@@ -36,6 +37,8 @@ spec:
       namespace: webpyshell
     - name: gmk
       namespace: kubeevent
+    - name: gmk
+      namespace: randomfail
     - name: gmk
       namespace: simpleservice
     - name: gmk

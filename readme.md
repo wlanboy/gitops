@@ -73,6 +73,9 @@ kubectl apply -f apps/app-kubeevent.yaml
 
 kubectl apply -f namespaces/namespace-simpleservice.yaml
 kubectl apply -f apps/app-simpleservice.yaml
+
+kubectl apply -f namespaces/namespace-randomfail.yaml
+kubectl apply -f apps/app-randomfail.yaml
 ```
 
 # 🧰 ArgoCD CLI – Verwaltung der Apps
