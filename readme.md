@@ -76,6 +76,11 @@ kubectl apply -f apps/app-simpleservice.yaml
 
 kubectl apply -f namespaces/namespace-randomfail.yaml
 kubectl apply -f apps/app-randomfail.yaml
+
+kubectl apply -f namespaces/namespace-caweb.yaml
+kubectl create secret generic ca-secret -n caweb \
+  --from-file=ca.pem=/local-ca/ca.pem --from-file=ca.key=/local-ca/ca.key
+kubectl apply -f apps/app-caweb.yaml
 ```
 
 # 🧰 ArgoCD CLI – Verwaltung der Apps

@@ -18,6 +18,7 @@ spec:
     - https://github.com/wlanboy/kubeevent.git
     - https://github.com/wlanboy/SimpleService.git
     - https://github.com/wlanboy/randomfail.git
+    - https://github.com/wlanboy/caweb.git
 
   # Welche Cluster dürfen verwendet werden?
   destinations:
@@ -41,6 +42,8 @@ spec:
       namespace: randomfail
     - name: gmk
       namespace: simpleservice
+    - name: gmk
+      namespace: caweb
     - name: gmk
       namespace: istio-ingress
 
