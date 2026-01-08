@@ -124,7 +124,14 @@ argocd app sync webpyshell
 
 argocd app get simpleservice
 argocd app sync simpleservice
+
+argocd app get kubeevent
+argocd app sync kubeevent
+
+argocd app get randomfail
+argocd app sync randomfail
 ```
+
 app get zeigt den aktuellen Status, z. B.:
 - OutOfSync
 - Healthy / Degraded
