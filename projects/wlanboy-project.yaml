@@ -16,6 +16,7 @@ spec:
     - https://github.com/wlanboy/Webshell.git
     - https://github.com/wlanboy/webpyshell.git
     - https://github.com/wlanboy/kubeevent.git
+    - https://github.com/wlanboy/kubeeventjava.git
     - https://github.com/wlanboy/SimpleService.git
     - https://github.com/wlanboy/randomfail.git
     - https://github.com/wlanboy/caweb.git
@@ -38,6 +39,8 @@ spec:
       namespace: webpyshell
     - name: gmk
       namespace: kubeevent
+    - name: gmk
+      namespace: kubeeventjava
     - name: gmk
       namespace: randomfail
     - name: gmk
