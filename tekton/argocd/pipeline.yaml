@@ -1,0 +1,54 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: docker-build-pipeline
+  namespace: tekton-pipelines
+spec:
+  params:
+    - name: repo-url
+      type: string
+      description: Git Repository URL
+    - name: repo-revision
+      type: string
+      default: main
+    - name: image-name
+      type: string
+      description: Docker Image Name (z.B. wlanboy/caweb)
+    - name: image-tag
+      type: string
+      default: latest
+    - name: dockerfile-path
+      type: string
+      default: ./Dockerfile
+    - name: context-path
+      type: string
+      default: .
+  workspaces:
+    - name: shared-workspace
+  tasks:
+    - name: fetch-source
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: url
+          value: $(params.repo-url)
+        - name: revision
+          value: $(params.repo-revision)
+    - name: build-push
+      taskRef:
+        name: kaniko-build
+      runAfter:
+        - fetch-source
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+      params:
+        - name: IMAGE
+          value: $(params.image-name):$(params.image-tag)
+        - name: DOCKERFILE
+          value: $(params.dockerfile-path)
+        - name: CONTEXT
+          value: $(params.context-path)

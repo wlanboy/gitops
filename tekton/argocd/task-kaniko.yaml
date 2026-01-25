@@ -1,0 +1,36 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: kaniko-build
+  namespace: tekton-pipelines
+spec:
+  params:
+    - name: IMAGE
+      description: Name des Docker Images (z.B. wlanboy/caweb:latest)
+    - name: DOCKERFILE
+      default: ./Dockerfile
+    - name: CONTEXT
+      default: .
+  workspaces:
+    - name: source
+  results:
+    - name: IMAGE_DIGEST
+      description: Digest des gebauten Images
+  steps:
+    - name: build-and-push
+      image: gcr.io/kaniko-project/executor:latest
+      args:
+        - --dockerfile=$(params.DOCKERFILE)
+        - --context=$(workspaces.source.path)/$(params.CONTEXT)
+        - --destination=$(params.IMAGE)
+        - --digest-file=$(results.IMAGE_DIGEST.path)
+      volumeMounts:
+        - name: docker-config
+          mountPath: /kaniko/.docker
+  volumes:
+    - name: docker-config
+      secret:
+        secretName: dockerhub-creds
+        items:
+          - key: .dockerconfigjson
+            path: config.json

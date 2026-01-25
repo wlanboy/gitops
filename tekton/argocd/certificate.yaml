@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tekton-dashboard-tls
+  namespace: istio-ingress
+spec:
+  secretName: tekton-dashboard-tls
+  issuerRef:
+    name: local-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - tekton.gkmc.lan
+  privateKey:
+    rotationPolicy: Always
