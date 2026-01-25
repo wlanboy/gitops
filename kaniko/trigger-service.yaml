@@ -1,0 +1,142 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kaniko-trigger
+  namespace: kaniko
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kaniko-job-creator
+  namespace: kaniko
+rules:
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["create", "delete", "get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kaniko-trigger-binding
+  namespace: kaniko
+subjects:
+  - kind: ServiceAccount
+    name: kaniko-trigger
+    namespace: kaniko
+roleRef:
+  kind: Role
+  name: kaniko-job-creator
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trigger-script
+  namespace: kaniko
+data:
+  trigger.sh: |
+    #!/bin/sh
+    # Einfacher Webhook Server der Kaniko Jobs startet
+    while true; do
+      echo "Waiting for webhook..."
+      nc -l -p 8080 -e /bin/sh -c '
+        read request
+        read host
+        read contenttype
+        read contentlength
+        read blank
+        read body
+
+        APP=$(echo $body | jq -r .app)
+        REPO=$(echo $body | jq -r .repo)
+
+        echo "Building: $APP from $REPO"
+
+        # Delete old job if exists
+        kubectl delete job kaniko-$APP -n kaniko --ignore-not-found
+
+        # Create new job
+        cat <<EOF | kubectl apply -f -
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: kaniko-$APP
+      namespace: kaniko
+    spec:
+      ttlSecondsAfterFinished: 600
+      backoffLimit: 1
+      template:
+        spec:
+          containers:
+            - name: kaniko
+              image: gcr.io/kaniko-project/executor:latest
+              args:
+                - --context=git://${REPO}#refs/heads/main
+                - --dockerfile=Dockerfile
+                - --destination=wlanboy/$APP:latest
+                - --cache=true
+              volumeMounts:
+                - name: docker-config
+                  mountPath: /kaniko/.docker
+                - name: git-creds
+                  mountPath: /kaniko/.git-credentials
+                  subPath: .git-credentials
+          restartPolicy: Never
+          volumes:
+            - name: docker-config
+              secret:
+                secretName: dockerhub-creds
+                items:
+                  - key: .dockerconfigjson
+                    path: config.json
+            - name: git-creds
+              secret:
+                secretName: github-creds
+    EOF
+
+        echo "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nJob created for $APP"
+      '
+    done
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kaniko-trigger
+  namespace: kaniko
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kaniko-trigger
+  template:
+    metadata:
+      labels:
+        app: kaniko-trigger
+    spec:
+      serviceAccountName: kaniko-trigger
+      containers:
+        - name: trigger
+          image: bitnami/kubectl:latest
+          command: ["/bin/sh", "/scripts/trigger.sh"]
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: script
+              mountPath: /scripts
+      volumes:
+        - name: script
+          configMap:
+            name: trigger-script
+            defaultMode: 0755
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kaniko-trigger
+  namespace: kaniko
+spec:
+  selector:
+    app: kaniko-trigger
+  ports:
+    - port: 8080
+      targetPort: 8080

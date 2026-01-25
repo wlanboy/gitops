@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kaniko-caweb
+  namespace: kaniko
+spec:
+  ttlSecondsAfterFinished: 600
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+        - name: kaniko
+          image: gcr.io/kaniko-project/executor:latest
+          args:
+            - --context=git://github.com/wlanboy/caweb.git#refs/heads/main
+            - --dockerfile=Dockerfile
+            - --destination=wlanboy/caweb:latest
+            - --cache=true
+          volumeMounts:
+            - name: docker-config
+              mountPath: /kaniko/.docker
+            - name: git-creds
+              mountPath: /kaniko/.git-credentials
+              subPath: .git-credentials
+      restartPolicy: Never
+      volumes:
+        - name: docker-config
+          secret:
+            secretName: dockerhub-creds
+            items:
+              - key: .dockerconfigjson
+                path: config.json
+        - name: git-creds
+          secret:
+            secretName: github-creds
