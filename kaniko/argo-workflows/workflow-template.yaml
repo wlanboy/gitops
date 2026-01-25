@@ -1,0 +1,71 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: kaniko-build
+  namespace: argo
+spec:
+  entrypoint: build
+  arguments:
+    parameters:
+      - name: repo
+        value: "https://github.com/wlanboy/caweb.git"
+      - name: branch
+        value: "main"
+      - name: image
+        value: "wlanboy/caweb"
+      - name: tag
+        value: "latest"
+      - name: dockerfile
+        value: "Dockerfile"
+
+  volumeClaimTemplates:
+    - metadata:
+        name: workspace
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+
+  templates:
+    - name: build
+      steps:
+        - - name: clone
+            template: git-clone
+        - - name: build-push
+            template: kaniko
+
+    - name: git-clone
+      container:
+        image: alpine/git:latest
+        command: [sh, -c]
+        args:
+          - |
+            git clone --branch {{workflow.parameters.branch}} --single-branch \
+              {{workflow.parameters.repo}} /workspace/source
+            cd /workspace/source
+            echo "Cloned at commit: $(git rev-parse HEAD)"
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace
+
+    - name: kaniko
+      container:
+        image: gcr.io/kaniko-project/executor:latest
+        args:
+          - --context=/workspace/source
+          - --dockerfile={{workflow.parameters.dockerfile}}
+          - --destination={{workflow.parameters.image}}:{{workflow.parameters.tag}}
+          - --cache=true
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace
+          - name: docker-config
+            mountPath: /kaniko/.docker
+      volumes:
+        - name: docker-config
+          secret:
+            secretName: dockerhub-creds
+            items:
+              - key: .dockerconfigjson
+                path: config.json

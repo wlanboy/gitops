@@ -2,7 +2,16 @@
 
 Minimales Setup für Docker Image Builds mit Kaniko in Kubernetes.
 
-## Dateien
+## Varianten
+
+| Variante | Ordner | Beschreibung |
+|----------|--------|--------------|
+| **Kubernetes Jobs** | `./` | Einfache K8s Jobs, manuell oder via ArgoCD Notifications |
+| **Argo Workflows** | `./argo-workflows/` | Kubernetes-native Pipelines ⭐ empfohlen |
+
+→ Für Argo Workflows siehe [argo-workflows/readme.md](argo-workflows/readme.md)
+
+## Dateien (Kubernetes Jobs)
 
 ```
 kaniko/
@@ -11,7 +20,8 @@ kaniko/
 ├── github-secret.yaml        # GitHub Credentials (für private Repos)
 ├── job-caweb.yaml            # Beispiel Build Job
 ├── trigger-service.yaml      # Webhook Service für Auto-Trigger
-└── argocd-notifications-cm.yaml  # ArgoCD Notifications Config
+├── argocd-notifications-cm.yaml  # ArgoCD Notifications Config
+└── argo-workflows/           # ⭐ Argo Workflows Setup
 ```
 
 ## Setup

@@ -1,0 +1,68 @@
+# Optional: GitHub Webhook Trigger
+# Benötigt: Argo Events Installation
+# kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install.yaml
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: github-webhook
+  namespace: argo
+spec:
+  github:
+    caweb:
+      repositories:
+        - owner: wlanboy
+          names:
+            - caweb
+      webhook:
+        endpoint: /push
+        port: "12000"
+        method: POST
+      events:
+        - push
+      apiToken:
+        name: github-creds
+        key: token
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: github-sensor
+  namespace: argo
+spec:
+  dependencies:
+    - name: github-push
+      eventSourceName: github-webhook
+      eventName: caweb
+
+  triggers:
+    - template:
+        name: trigger-kaniko
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: build-caweb-
+                namespace: argo
+              spec:
+                workflowTemplateRef:
+                  name: kaniko-build
+                arguments:
+                  parameters:
+                    - name: repo
+                      value: "https://github.com/wlanboy/caweb.git"
+                    - name: branch
+                      value: "main"
+                    - name: image
+                      value: "wlanboy/caweb"
+                    - name: tag
+                      # Nutzt Git SHA als Tag
+                      value: ""
+          parameters:
+            - src:
+                dependencyName: github-push
+                dataKey: body.after
+              dest: spec.arguments.parameters.3.value

@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: build-caweb-
+  namespace: argo
+spec:
+  workflowTemplateRef:
+    name: kaniko-build
+  arguments:
+    parameters:
+      - name: repo
+        value: "https://github.com/wlanboy/caweb.git"
+      - name: branch
+        value: "main"
+      - name: image
+        value: "wlanboy/caweb"
+      - name: tag
+        value: "latest"

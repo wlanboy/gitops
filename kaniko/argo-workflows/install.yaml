@@ -1,0 +1,18 @@
+# Argo Workflows Installation
+# Alternativ: kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.5.5/install.yaml
+#
+# Für minimale Installation (ohne UI):
+# kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.5.5/quick-start-minimal.yaml
+#
+# Diese Datei ist ein Platzhalter - die Installation erfolgt via URL
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: workflow-controller-configmap
+  namespace: argo
+data:
+  # Container Runtime Executor
+  containerRuntimeExecutor: emissary
+  # Namespace für Workflows
+  namespace: argo
