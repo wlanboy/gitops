@@ -14,6 +14,17 @@ spec:
       releaseName: mirror
       valueFiles:
         - values.yaml
+      valuesObject:
+        extraVolumeMounts:
+          - name: trust
+            mountPath: /opt/trust
+        extraVolumes:
+          - name: trust
+            secret:
+              secretName: gmk-truststore
+        extraEnv:
+          - name: JAVA_TOOL_OPTIONS
+            value: "-Djavax.net.ssl.trustStore=/opt/trust/gmk-truststore.p12 -Djavax.net.ssl.trustStorePassword=changeit"
 
   destination:
     name: gmk
