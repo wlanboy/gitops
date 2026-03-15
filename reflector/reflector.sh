@@ -37,9 +37,9 @@ kubectl annotate secret "$SECRET_NAME" \
   --overwrite \
   reflector.v1.k8s.emberstack.com/reflection-allowed="true" \
   reflector.v1.k8s.emberstack.com/reflection-auto-enabled="true" \
-  reflector.v1.k8s.emberstack.com/reflection-auto-namespaces=""
+  reflector.v1.k8s.emberstack.com/reflection-auto-namespaces="eureka,javahttpclient,kubeeventjava,simpleservice,mirror"
 
 echo ""
-echo ">> Fertig. Das Secret wird in alle aktuellen und zukünftigen Namespaces gespiegelt."
+echo ">> Fertig. Das Secret wird in die Java-App-Namespaces gespiegelt: eureka, javahttpclient, kubeeventjava, simpleservice, mirror"
 echo ">> Status prüfen:"
 echo "   kubectl get secrets --all-namespaces | grep $SECRET_NAME"
