@@ -1,6 +1,8 @@
 # Plan: Helm Chart um extraVolumes / extraEnv erweitern
 
-### 1. `values.yaml` — Defaults ergänzen
+Beschreibt die nötigen Änderungen, um ein bestehendes Helm Chart flexibel um zusätzliche Volumes, VolumeMounts und Umgebungsvariablen erweiterbar zu machen — ohne das Chart selbst zu forken. Die Werte werden über `values.yaml` übergeben und im Deployment-Template per `{{- with }}` eingebunden.
+
+## 1. `values.yaml` — Defaults ergänzen
 
 ```yaml
 extraVolumeMounts: []
@@ -10,7 +12,7 @@ extraEnv: []
 
 ---
 
-### 2. `templates/deployment.yaml` — volumeMounts einbinden
+## 2. `templates/deployment.yaml` — volumeMounts einbinden
 
 Im Container-Block, nach den bestehenden `volumeMounts`:
 
@@ -24,7 +26,7 @@ volumeMounts:
 
 ---
 
-### 3. `templates/deployment.yaml` — volumes einbinden
+## 3. `templates/deployment.yaml` — volumes einbinden
 
 Auf Pod-Ebene, nach den bestehenden `volumes`:
 
@@ -38,7 +40,7 @@ volumes:
 
 ---
 
-### 4. `templates/deployment.yaml` — env einbinden
+## 4. `templates/deployment.yaml` — env einbinden
 
 Im Container-Block, nach den bestehenden `env`-Einträgen:
 
@@ -54,7 +56,7 @@ env:
 
 ### Einrückung — Orientierung
 
-```
+```yaml
 spec:                        # Pod spec
   volumes:                   # indent 8
     ...
