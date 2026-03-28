@@ -27,6 +27,7 @@ kaniko/
 ## Setup
 
 ### 1. Namespace erstellen
+
 ```bash
 kubectl apply -f namespace.yaml
 ```
@@ -34,6 +35,7 @@ kubectl apply -f namespace.yaml
 ### 2. Secrets erstellen
 
 **Docker Hub:**
+
 ```bash
 kubectl create secret docker-registry dockerhub-creds \
   --docker-server=https://index.docker.io/v1/ \
@@ -43,6 +45,7 @@ kubectl create secret docker-registry dockerhub-creds \
 ```
 
 **GitHub (für private Repos):**
+
 ```bash
 kubectl create secret generic github-creds \
   --from-literal=.git-credentials='https://USERNAME:GITHUB_TOKEN@github.com' \
@@ -50,6 +53,7 @@ kubectl create secret generic github-creds \
 ```
 
 ### 3. Manueller Build
+
 ```bash
 kubectl apply -f job-caweb.yaml
 kubectl logs -f job/kaniko-caweb -n kaniko
@@ -58,16 +62,19 @@ kubectl logs -f job/kaniko-caweb -n kaniko
 ## Automatischer Trigger bei ArgoCD Sync
 
 ### 1. Trigger Service deployen
+
 ```bash
 kubectl apply -f trigger-service.yaml
 ```
 
 ### 2. ArgoCD Notifications konfigurieren
+
 ```bash
 kubectl apply -f argocd-notifications-cm.yaml
 ```
 
 ### 3. App für Notifications annotieren
+
 ```bash
 kubectl annotate application caweb \
   notifications.argoproj.io/subscribe.on-sync-succeeded.kaniko-webhook="" \
@@ -76,7 +83,7 @@ kubectl annotate application caweb \
 
 ## Ablauf
 
-```
+```txt
 Git Push → ArgoCD Sync → Notification → Webhook → Kaniko Job → Docker Hub
 ```
 
