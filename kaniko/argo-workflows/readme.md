@@ -109,3 +109,22 @@ Kopiere `workflow-caweb.yaml` und passe die Parameter an:
 - `image`: Docker Hub Image Name
 - `tag`: Image Tag
 - `branch`: Git Branch
+
+## Deinstallation
+
+```bash
+# Interaktiv – für jede Komponente einzeln bestätigen
+./uninstall.sh
+
+# Alles ohne Rückfrage löschen
+./uninstall.sh --all
+```
+
+Reihenfolge der entfernten Komponenten:
+1. Laufende Workflows
+2. WorkflowTemplate `kaniko-build`
+3. EventSource `github-webhook` + Sensor `github-sensor`
+4. Secrets `dockerhub-creds` und `github-creds`
+5. Argo Events (Namespace `argo-events`)
+6. Argo Workflows (quick-start-minimal)
+7. Namespace `argo`
