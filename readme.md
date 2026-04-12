@@ -51,6 +51,23 @@ Projekte definieren u. a.:
 - erlaubte Ziel‑Cluster
 - erlaubte Namespaces und Ressourcen
 
+## 🔁 Reflector – Secret-Spiegelung in Java-App-Namespaces
+
+Reflector ist ein Helm-basiertes Tool, das Kubernetes Secrets automatisch in mehrere Namespaces spiegelt.
+Es wird **nicht** über ArgoCD verwaltet, sondern direkt via Helm in `kube-system` installiert.
+
+### Installation & Einrichtung
+
+```bash
+cd reflector/
+bash reflector.sh
+```
+### Status prüfen
+
+```bash
+kubectl get secrets --all-namespaces | grep gmk-truststore
+```
+
 ## 📦 Deployment der einzelnen Applikationen
 
 Jede App besteht aus zwei Schritten:
@@ -150,6 +167,12 @@ argocd app sync kubeevent
 
 argocd app get randomfail
 argocd app sync randomfail
+
+argocd app get kubeeventjava
+argocd app sync kubeeventjava
+
+argocd app get caweb
+argocd app sync caweb
 ```
 
 app get zeigt den aktuellen Status, z. B.:
