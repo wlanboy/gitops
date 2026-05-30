@@ -1,5 +1,7 @@
 # Reflector — Kubernetes Secret & ConfigMap Spiegelung
 
+> Reflector synchronisiert Secrets und ConfigMaps automatisch zwischen Namespaces — einmal anlegen, überall verfügbar. Besonders nützlich für TLS-Zertifikate und Truststores, die von mehreren Services genutzt werden.
+
 ## Was ist Reflector?
 
 [Reflector](https://github.com/emberstack/kubernetes-reflector) ist ein Kubernetes-Controller von Emberstack, der Secrets und ConfigMaps automatisch zwischen Namespaces synchronisiert ("spiegelt").
