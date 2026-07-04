@@ -1,23 +1,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: eureka
+  name: caweb
   namespace: argocd
 spec:
   project: wlanboy
 
   source:
-    repoURL: https://github.com/wlanboy/eurekaclientjava.git
+    repoURL: https://github.com/wlanboy/caweb.git
     targetRevision: main
-    path: eurekaclient-chart
+    path: caweb-chart
     helm:
-      releaseName: eureka
+      releaseName: caweb
       valueFiles:
         - values.yaml
 
   destination:
     name: gmk
-    namespace: eureka
+    namespace: caweb
 
   syncPolicy:
     automated:
