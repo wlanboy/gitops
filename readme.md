@@ -68,12 +68,21 @@ bash reflector.sh
 kubectl get secrets --all-namespaces | grep gmk-truststore
 ```
 
+### `apps/` vs. `apps-trust/`
+
+Für die Java-Apps, deren Namespaces oben per `reflection-auto-namespaces` mit dem `gmk-truststore`-Secret versorgt werden gibt es zwei Varianten der ArgoCD-App-Definition:
+
+- **`apps/app-<name>.yaml`** – Standard-Manifest ohne Truststore-Mount.
+- **`apps-trust/app-<name>.yaml`** – identisches Manifest, zusätzlich mit `extraVolumes`/`extraVolumeMounts` für `/opt/trust` und `JAVA_TOOL_OPTIONS`, das den JVM-Truststore auf das gespiegelte `gmk-truststore`-Secret zeigen lässt.
+
+Welche Variante man deployt, hängt davon ab, ob die jeweilige App TLS-Verbindungen gegen den internen CA-Truststore verifizieren muss:
+
 ## 📦 Deployment der einzelnen Applikationen
 
 Jede App besteht aus zwei Schritten:
 
 - Namespace anlegen
-- ArgoCD‑App‑Definition anwenden
+- ArgoCD‑App‑Definition anwenden (aus `apps/`, bzw. `apps-trust/` für Apps mit Truststore-Bedarf – siehe oben)
 
 ```bash
 kubectl apply -f namespaces/namespace-wlanboy.yaml
