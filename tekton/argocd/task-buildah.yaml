@@ -1,0 +1,51 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: buildah-build
+  namespace: tekton-pipelines
+spec:
+  params:
+    - name: IMAGE
+      description: Name des Docker Images (z.B. wlanboy/caweb:latest)
+    - name: DOCKERFILE
+      default: ./Dockerfile
+    - name: CONTEXT
+      default: .
+    - name: TLS_VERIFY
+      description: "'false' für Registries ohne TLS (z.B. lokale In-Cluster-Registry)"
+      default: "true"
+  workspaces:
+    - name: source
+  results:
+    - name: IMAGE_DIGEST
+      description: Digest des gebauten Images
+  steps:
+    - name: build-and-push
+      image: quay.io/buildah/stable:latest
+      securityContext:
+        privileged: true
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        buildah bud -f "$(params.DOCKERFILE)" -t "$(params.IMAGE)" "$(params.CONTEXT)"
+
+        PUSH_ARGS=()
+        if [ "$(params.TLS_VERIFY)" = "false" ]; then
+          PUSH_ARGS+=(--tls-verify=false)
+        fi
+
+        buildah push "${PUSH_ARGS[@]}" \
+          --authfile=/creds/config.json \
+          --digestfile="$(results.IMAGE_DIGEST.path)" \
+          "$(params.IMAGE)"
+      volumeMounts:
+        - name: docker-config
+          mountPath: /creds
+  volumes:
+    - name: docker-config
+      secret:
+        secretName: dockerhub-creds
+        items:
+          - key: .dockerconfigjson
+            path: config.json

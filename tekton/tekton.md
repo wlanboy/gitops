@@ -4,6 +4,8 @@ Tekton Pipelines für deine GitHub-Projekte und ArgoCD Apps einrichten.
 
 **Voraussetzungen:** K3s Cluster, Istio, Cert-Manager und ArgoCD müssen laufen.
 
+> ⚠️ **Kaniko ist seit 2025-06-03 archiviert** (GoogleContainerTools/kaniko wird nicht mehr gepflegt, `gcr.io/kaniko-project/executor` bekommt keine Updates/CVE-Fixes mehr). Die Kaniko-Task in Abschnitt 3 funktioniert weiterhin und dient als Referenz für Bestandssetups. Für neue Pipelines siehe die `buildah-build`-Task (Abschnitt 3, Alternative) — Buildah (containers-Projekt, Red Hat) ist frei nutzbar und aktiv gepflegt. Siehe auch [../kaniko/kaniko.md](../kaniko/kaniko.md) und [../buildah/buildah.md](../buildah/buildah.md) für die Job-basierten (Nicht-Tekton) Varianten desselben Vergleichs.
+
 ---
 
 ## 1. Tekton Installation per Helm
@@ -139,6 +141,75 @@ spec:
 kubectl apply -f task-kaniko.yaml
 ```
 
+### Buildah Build Task (empfohlene Alternative zu Kaniko)
+
+Gleiches Param-Interface wie `kaniko-build` (`IMAGE`, `DOCKERFILE`, `CONTEXT`) — damit lässt sich die Task in der Pipeline (Abschnitt 4) per einfachem `taskRef`-Tausch einsetzen, ohne die Pipeline-Params anzufassen. Anders als Kaniko führt Buildah `RUN`-Schritte über einen echten Container-Runtime-Layer aus und benötigt dafür `securityContext.privileged: true` (vergleichbar mit Docker-in-Docker).
+
+```yaml
+# task-buildah.yaml
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: buildah-build
+  namespace: tekton-pipelines
+spec:
+  params:
+    - name: IMAGE
+      description: Name des Docker Images (z.B. wlanboy/caweb:latest)
+    - name: DOCKERFILE
+      default: ./Dockerfile
+    - name: CONTEXT
+      default: .
+    - name: TLS_VERIFY
+      description: "'false' für Registries ohne TLS (z.B. lokale In-Cluster-Registry)"
+      default: "true"
+  workspaces:
+    - name: source
+  results:
+    - name: IMAGE_DIGEST
+      description: Digest des gebauten Images
+  steps:
+    - name: build-and-push
+      image: quay.io/buildah/stable:latest
+      securityContext:
+        privileged: true
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        buildah bud -f "$(params.DOCKERFILE)" -t "$(params.IMAGE)" "$(params.CONTEXT)"
+
+        PUSH_ARGS=()
+        if [ "$(params.TLS_VERIFY)" = "false" ]; then
+          PUSH_ARGS+=(--tls-verify=false)
+        fi
+
+        buildah push "${PUSH_ARGS[@]}" \
+          --authfile=/creds/config.json \
+          --digestfile="$(results.IMAGE_DIGEST.path)" \
+          "$(params.IMAGE)"
+      volumeMounts:
+        - name: docker-config
+          mountPath: /creds
+  volumes:
+    - name: docker-config
+      secret:
+        secretName: dockerhub-creds
+        items:
+          - key: .dockerconfigjson
+            path: config.json
+```
+
+```bash
+kubectl apply -f task-buildah.yaml
+```
+
+Falls Pod Security Admission den privilegierten Container blockiert, den Namespace mit dem `privileged`-Level labeln:
+
+```bash
+kubectl label namespace tekton-pipelines pod-security.kubernetes.io/enforce=privileged
+```
+
 ---
 
 ## 4. Pipeline Definition
@@ -206,6 +277,8 @@ spec:
 ```bash
 kubectl apply -f pipeline-docker-build.yaml
 ```
+
+**Buildah statt Kaniko verwenden:** Da `buildah-build` (Abschnitt 3) dasselbe Param-Interface wie `kaniko-build` hat, reicht es, im `build-push`-Task oben `taskRef.name` von `kaniko-build` auf `buildah-build` zu ändern — Pipeline-Params, PipelineRuns und `build.sh` bleiben unverändert.
 
 ---
 

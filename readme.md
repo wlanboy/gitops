@@ -126,10 +126,11 @@ kubectl apply -f apps/app-caweb.yaml
 
 ## 🏗️ Image Builds im Cluster
 
-Für den Bau von Docker-Images innerhalb des Clusters (getriggert nach ArgoCD-Sync) gibt es zwei Ansätze:
+Für den Bau von Docker-Images innerhalb des Clusters gibt es drei Ansätze:
 
-- **[kaniko/kaniko.md](kaniko/kaniko.md)** – ursprüngliches Setup. Kaniko ist seit 2025-06-03 archiviert und unmaintained.
-- **[buildah/buildah.md](buildah/buildah.md)** – aktueller Ersatz für Kaniko, aktiv gepflegt (containers-Projekt, Red Hat). Enthält Varianten für Push zu Docker Hub, reinen lokalen Build ohne Push sowie Push an eine lokale In-Cluster-Registry.
+- **[kaniko/kaniko.md](kaniko/kaniko.md)** – ursprüngliches Job-Setup, getriggert per ArgoCD-Notification-Webhook. Kaniko ist seit 2025-06-03 archiviert und unmaintained.
+- **[buildah/buildah.md](buildah/buildah.md)** – Job-basierter Ersatz für Kaniko, aktiv gepflegt (containers-Projekt, Red Hat). Enthält Varianten für Push zu Docker Hub, reinen lokalen Build ohne Push sowie Push an eine lokale In-Cluster-Registry.
+- **[tekton/tekton.md](tekton/tekton.md)** – vollwertige Tekton-Pipeline (Git-Clone + Build + Push) mit Dashboard, Webhook-Trigger und `build.sh`-Helper für alle Apps. Enthält Tasks für beide Build-Engines (`kaniko-build` und `buildah-build`, gleiches Param-Interface, per `taskRef`-Tausch austauschbar).
 
 ## 🧰 ArgoCD CLI – Verwaltung der Apps
 
