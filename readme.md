@@ -124,6 +124,13 @@ kubectl create secret generic ca-secret -n caweb \
 kubectl apply -f apps/app-caweb.yaml
 ```
 
+## 🏗️ Image Builds im Cluster
+
+Für den Bau von Docker-Images innerhalb des Clusters (getriggert nach ArgoCD-Sync) gibt es zwei Ansätze:
+
+- **[kaniko/kaniko.md](kaniko/kaniko.md)** – ursprüngliches Setup. Kaniko ist seit 2025-06-03 archiviert und unmaintained.
+- **[buildah/buildah.md](buildah/buildah.md)** – aktueller Ersatz für Kaniko, aktiv gepflegt (containers-Projekt, Red Hat). Enthält Varianten für Push zu Docker Hub, reinen lokalen Build ohne Push sowie Push an eine lokale In-Cluster-Registry.
+
 ## 🧰 ArgoCD CLI – Verwaltung der Apps
 
 Die ArgoCD‑CLI ermöglicht es, Apps zu synchronisieren, ihren Status abzufragen oder Fehler zu analysieren.
