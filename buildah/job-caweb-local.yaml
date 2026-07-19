@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: buildah-caweb-local
+  namespace: buildah
+spec:
+  ttlSecondsAfterFinished: 600
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: git-clone
+          image: alpine/git:latest
+          command: [sh, -c]
+          args:
+            - |
+              git clone --branch main --single-branch \
+                https://github.com/wlanboy/caweb.git /workspace/source
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+      containers:
+        - name: buildah
+          image: quay.io/buildah/stable:latest
+          securityContext:
+            privileged: true
+          workingDir: /workspace/source
+          env:
+            - name: REGISTRY
+              value: "docker.io/wlanboy"
+            - name: SKIP_PUSH
+              value: "true"
+          command: [sh, -c]
+          args:
+            - |
+              set -e
+              IMAGE="${REGISTRY}/caweb:latest"
+              buildah bud -t "${IMAGE}" .
+
+              if [ "${SKIP_PUSH}" = "true" ]; then
+                echo "SKIP_PUSH=true - Push wird übersprungen"
+                exit 0
+              fi
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+      volumes:
+        - name: workspace
+          emptyDir: {}
