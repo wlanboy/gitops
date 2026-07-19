@@ -81,6 +81,17 @@ kubectl port-forward svc/argo-server -n argo 2746:2746
 # Dann: https://localhost:2746
 ```
 
+## Wie der Build-Workflow funktioniert
+
+`workflow-template.yaml` definiert eine `WorkflowTemplate` namens `kaniko-build` mit zwei Schritten, die sich einen gemeinsamen Speicher (`volumeClaimTemplates: workspace`, ein PVC) teilen:
+
+1. **`git-clone`** – ein `alpine/git`-Container klont das Repo (`{{workflow.parameters.repo}}`, Branch `{{workflow.parameters.branch}}`) nach `/workspace/source`.
+2. **`kaniko`** – der Kaniko-Executor baut aus genau diesem Verzeichnis (`--context=/workspace/source`) das Image und pusht es nach `{{image}}:{{tag}}`.
+
+Der Grund für zwei getrennte Schritte statt Kanikos eingebautem `git://`-Context (wie in der Kubernetes-Job-Variante): Argo Workflows kann so pro Schritt Logs/Status einzeln anzeigen, und der Clone-Schritt kann bei Bedarf leicht getauscht/erweitert werden (z. B. um private Repos mit Token-Auth), ohne den Kaniko-Schritt anzufassen.
+
+`workflow-caweb.yaml` ist ein fertiger `Workflow`, der diese Template mit konkreten Parametern für `caweb` referenziert (`workflowTemplateRef`) – das ist das Pendant zu `job-caweb.yaml` in der Kubernetes-Job-Variante. Für eine neue App brauchst du **keine** neue Template-Definition, sondern nur einen neuen kleinen `Workflow` (oder einen `argo submit --from workflowtemplate/...` Aufruf) mit anderen `-p repo=... -p image=...`-Werten.
+
 ## Optional: GitHub Webhook Trigger
 
 Für automatische Builds bei Git Push:
@@ -101,6 +112,16 @@ kubectl apply -f sensor-github.yaml
 - URL: `https://dein-cluster/push`
 - Content-Type: `application/json`
 - Events: `push`
+
+### Was dabei im Detail passiert
+
+`sensor-github.yaml` enthält zwei Ressourcen, die zusammenspielen:
+
+1. **`EventSource` (`github-webhook`)** – öffnet einen echten HTTP-Endpunkt (`/push` auf Port `12000`) und registriert sich selbst als GitHub-Webhook für das Repo `wlanboy/caweb` (über `apiToken` aus dem Secret `github-creds`). Anders als beim `nc`-Skript der Kubernetes-Job-Variante übernimmt hier Argo Events das komplette HTTP-Handling, die GitHub-Webhook-Registrierung und die Signaturprüfung.
+2. **`Sensor` (`github-sensor`)** – "hängt" (`dependencies`) am Event `caweb` dieser EventSource. Trifft ein Push-Event ein, führt der Trigger `trigger-kaniko` eine `k8s create`-Operation aus: Es wird ein neuer `Workflow` erzeugt (`generateName: build-caweb-`), der per `workflowTemplateRef` auf `kaniko-build` verweist – also exakt die oben beschriebene Template mit `git-clone` + `kaniko`.
+3. **Dynamischer Tag** – der Block `parameters` am Ende ersetzt den vierten Parameter (`spec.arguments.parameters.3.value`, also `tag`) durch `body.after` aus der Event-Payload – das ist die neue Commit-SHA aus dem GitHub-Push-Payload. Dadurch bekommt jedes gebaute Image automatisch die SHA des auslösenden Commits als Tag, statt eines festen `latest`.
+
+Im Vergleich zur Kubernetes-Job-Variante (ArgoCD-Notification → selbstgebauter `nc`-Webhook) ist das robuster: kein selbstgeschriebener HTTP-Parser, Auth über GitHub-Token, und der Trigger reagiert direkt auf den Push (nicht erst nach einem ArgoCD-Sync).
 
 ## Workflow für neue App erstellen
 
