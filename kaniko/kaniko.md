@@ -2,27 +2,7 @@
 
 Minimales Setup für Docker Image Builds mit Kaniko in Kubernetes.
 
-## Varianten
-
-| Variante | Ordner | Beschreibung |
-|----------|--------|--------------|
-| **Kubernetes Jobs** | `./` | Einfache K8s Jobs, manuell oder via ArgoCD Notifications |
-| **Argo Workflows** | `./argo-workflows/` | Kubernetes-native Pipelines ⭐ empfohlen |
-
-→ Für Argo Workflows siehe [argo-workflows/readme.md](argo-workflows/readme.md)
-
-## Dateien (Kubernetes Jobs)
-
-```
-kaniko/
-├── namespace.yaml            # Namespace
-├── secret.yaml               # Docker Hub Credentials (Template)
-├── github-secret.yaml        # GitHub Credentials (für private Repos)
-├── job-caweb.yaml            # Beispiel Build Job
-├── trigger-service.yaml      # Webhook Service für Auto-Trigger
-├── argocd-notifications-cm.yaml  # ArgoCD Notifications Config
-└── argo-workflows/           # ⭐ Argo Workflows Setup
-```
+> ⚠️ **Kaniko ist seit 2025-06-03 archiviert** (GoogleContainerTools/kaniko wird nicht mehr gepflegt, `gcr.io/kaniko-project/executor` bekommt keine Updates/CVE-Fixes mehr). Chainguard pflegt einen Fork, das Image ist aber nur kostenpflichtig über einen eigenen Chainguard-Account (`cgr.dev/ORGANIZATION/kaniko`) verfügbar. Für neue Projekte siehe die Alternative [../buildah/buildah.md](../buildah/buildah.md) (Buildah, frei & aktiv gepflegt). Dieses Verzeichnis dient nur noch als Referenz für Bestandssetups.
 
 ## Setup
 
@@ -86,6 +66,25 @@ kubectl annotate application caweb \
 ```txt
 Git Push → ArgoCD Sync → Notification → Webhook → Kaniko Job → Docker Hub
 ```
+
+### Was dabei im Detail passiert
+
+1. **Git Push** – Code wird auf `main` gepusht.
+2. **ArgoCD Sync** – ArgoCD erkennt die Änderung und synct die Application erfolgreich (`Succeeded`).
+3. **Notification** – `argocd-notifications-cm.yaml` definiert dafür einen Trigger:
+   ```yaml
+   trigger.on-sync-succeeded: |
+     - when: app.status.operationState.phase in ['Succeeded']
+       send: [trigger-kaniko-build]
+   ```
+   Das zugehörige Template baut daraus einen JSON-Body mit App-Namen, Repo-URL und Revision aus den ArgoCD-Metadaten (`{{.app.metadata.name}}`, `{{.app.spec.source.repoURL}}`, `{{.app.status.sync.revision}}`).
+4. **Webhook** – ArgoCD schickt diesen JSON-Body per POST an
+   `http://kaniko-trigger.kaniko.svc.cluster.local:8080/build` (definiert in `service.webhook.kaniko-webhook`).
+   Empfänger ist der `kaniko-trigger` Service aus `trigger-service.yaml`. Dahinter läuft **kein** vollwertiger HTTP-Server, sondern ein simples Shell-Skript, das mit `nc -l -p 8080` in einer Endlosschleife lauscht, die Request-Zeilen einliest und mit `jq` `app` und `repo` aus dem Body extrahiert.
+5. **Kaniko Job** – Das Skript löscht einen eventuell vorhandenen alten Job (`kubectl delete job kaniko-$APP`) und erzeugt per `kubectl apply -f -` einen neuen `Job` – strukturell identisch zu `job-caweb.yaml`, nur mit `$APP`/`$REPO` als Platzhalter statt fest codierten Werten. Damit der Pod das darf, besitzt er über `ServiceAccount` + `Role` + `RoleBinding` (ebenfalls in `trigger-service.yaml`) die Rechte, Jobs im Namespace `kaniko` zu erstellen/löschen.
+6. **Docker Hub** – Der neue Kaniko-Job baut das Image aus dem Git-Context und pusht es nach `wlanboy/$APP:latest`.
+
+> **Hinweis:** Der Webhook-Server basiert auf `nc` in einer Shell-Schleife – ohne Auth, ohne TLS, ohne robustes HTTP-Parsing. Das reicht für ein internes, vertrauenswürdiges Cluster-Netz, ist aber kein produktionsreifer Webhook-Empfänger.
 
 ## Neuen Build manuell triggern
 
